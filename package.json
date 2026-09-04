@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@vercel/functions": "^3.9.5",
     "bcryptjs": "2.4.3",
     "html2canvas": "1.4.1",
     "js-cookie": "3.0.5",
