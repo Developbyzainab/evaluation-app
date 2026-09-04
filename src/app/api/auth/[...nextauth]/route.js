@@ -13,12 +13,11 @@ export const authOptions = {
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
-        name: { label: "Name", type: "text" },
       },
       async authorize(credentials) {
         try {
-          console.log("🔐 Authorize called, email:", credentials?.email, "hasName:", !!credentials?.name);
-          
+          console.log("🔐 Authorize called for login, email:", credentials?.email);
+
           if (!credentials?.email || !credentials?.password) {
             console.log("❌ Missing email or password");
             throw new Error("Email and password are required");
@@ -26,71 +25,34 @@ export const authOptions = {
 
           await connectDB();
 
-          const { email, password, name } = credentials;
+          const { email, password } = credentials;
           const normalizedEmail = email.toLowerCase().trim();
           const existingUser = await User.findOne({ email: normalizedEmail });
 
-          // REGISTER FLOW: name provided, trying to create new account
-          if (!existingUser && name) {
-            console.log("📝 Register attempt for:", normalizedEmail);
-            try {
-              const hashedPassword = await bcrypt.hash(password, 12);
-              const newUser = await User.create({
-                name: name.trim(),
-                email: normalizedEmail,
-                password: hashedPassword,
-                role: "user",
-                provider: "credentials",
-              });
-              
-              console.log("✅ User created:", newUser.email);
-              return {
-                id: newUser._id.toString(),
-                name: newUser.name,
-                email: newUser.email,
-                role: newUser.role,
-              };
-            } catch (createError) {
-              console.error("❌ User creation failed:", createError);
-              if (createError.code === 11000) {
-                throw new Error("An account with this email already exists. Please sign in instead.");
-              }
-              throw new Error("Failed to create account. Please try again.");
-            }
+          // LOGIN FLOW ONLY: user must exist
+          if (!existingUser) {
+            console.log("❌ User not found:", normalizedEmail);
+            throw new Error("Account not found. Please Sign Up.");
           }
 
-          // LOGIN FLOW: user exists
-          if (existingUser) {
-            // If name is also provided, user is trying to register with existing email
-            if (name) {
-              console.log("❌ Registration attempted with existing email:", normalizedEmail);
-              throw new Error("An account with this email already exists. Please sign in instead.");
-            }
-            
-            const isValid = await bcrypt.compare(password, existingUser.password);
-            if (!isValid) {
-              console.log("❌ Invalid password for:", normalizedEmail);
-              throw new Error("Invalid email or password");
-            }
-            
-            existingUser.lastLoginAt = new Date();
-            await existingUser.save();
-            
-            console.log("✅ Login successful:", normalizedEmail);
-            return {
-              id: existingUser._id.toString(),
-              name: existingUser.name,
-              email: existingUser.email,
-              role: existingUser.role,
-            };
+          const isValid = await bcrypt.compare(password, existingUser.password);
+          if (!isValid) {
+            console.log("❌ Invalid password for:", normalizedEmail);
+            throw new Error("Invalid email or password");
           }
 
-          // User doesn't exist and no name provided (login attempt for non-existent user)
-          console.log("❌ User not found:", normalizedEmail);
-          throw new Error("Account not found. Please Sign Up.");
+          existingUser.lastLoginAt = new Date();
+          await existingUser.save();
+
+          console.log("✅ Login successful:", normalizedEmail);
+          return {
+            id: existingUser._id.toString(),
+            name: existingUser.name,
+            email: existingUser.email,
+            role: existingUser.role,
+          };
         } catch (error) {
           console.error("❌ Auth error:", error.message);
-          // Re-throw to let NextAuth handle the error and redirect to error page
           throw error;
         }
       },
@@ -111,12 +73,10 @@ export const authOptions = {
       if (account?.provider === "google" || account?.provider === "apple") {
         try {
           await connectDB();
-          
-          // Check if user already exists by email
+
           const existingUser = await User.findOne({ email: user.email });
-          
+
           if (existingUser) {
-            // User exists - link the OAuth account if not already linked
             if (existingUser.provider !== account.provider) {
               existingUser.provider = account.provider;
               existingUser.providerId = account.providerAccountId;
@@ -124,8 +84,7 @@ export const authOptions = {
             }
             return true;
           }
-          
-          // User doesn't exist - create new user with OAuth info
+
           const newUser = await User.create({
             name: user.name || profile?.name || "User",
             email: user.email,
@@ -133,7 +92,7 @@ export const authOptions = {
             providerId: account.providerAccountId,
             role: "user",
           });
-          
+
           console.log("✅ OAuth user created:", newUser.email);
           return true;
         } catch (error) {
@@ -141,8 +100,8 @@ export const authOptions = {
           return false;
         }
       }
-      
-      return true; // Allow credentials sign in
+
+      return true;
     },
     async jwt({ token, user, account, profile }) {
       if (user) {

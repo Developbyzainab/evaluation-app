@@ -24,8 +24,8 @@ function AuthErrorContent() {
   return (
     <div>
       <meta httpEquiv="refresh" content={`0;url=${redirectUrl}`} />
-      <div className="min-h-screen bg-[#05050a] flex items-center justify-center px-4 py-12">
-        <div className="animate-pulse w-96 h-96 bg-[#0a0a10] rounded-2xl" />
+      <div className="min-h-screen bg-gradient-to-b from-[#0f0f1a] via-[#1a1a2e] to-[#0f0f1a] flex items-center justify-center px-4 py-12">
+        <div className="animate-pulse w-96 h-96 bg-[#161622] rounded-2xl" />
       </div>
     </div>
   );
@@ -33,7 +33,7 @@ function AuthErrorContent() {
 
 export default function AuthErrorPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#05050a] flex items-center justify-center"><div className="animate-pulse w-96 h-96 bg-[#0a0a10] rounded-2xl" /></div>}>
+    <Suspense fallback={<div className="min-h-screen bg-gradient-to-b from-[#0f0f1a] via-[#1a1a2e] to-[#0f0f1a] flex items-center justify-center"><div className="animate-pulse w-96 h-96 bg-[#161622] rounded-2xl" /></div>}>
       <AuthErrorContent />
     </Suspense>
   );
