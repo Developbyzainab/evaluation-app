@@ -13,6 +13,7 @@ function LoginForm({ user }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -21,6 +22,10 @@ function LoginForm({ user }) {
     const errorParam = searchParams.get("error");
     if (errorParam) {
       setError(decodeURIComponent(errorParam));
+    }
+    const registered = searchParams.get("registered");
+    if (registered === "true") {
+      setSuccess("Account created successfully. Please sign in.");
     }
   }, [searchParams]);
 
@@ -48,8 +53,6 @@ function LoginForm({ user }) {
         callbackUrl: redirectUrl,
       });
 
-      console.log("signIn result:", result);
-
       if (result?.ok) {
         router.push(redirectUrl);
         router.refresh();
@@ -58,7 +61,6 @@ function LoginForm({ user }) {
 
       if (result?.error) {
         const errorMsg = result.error;
-        // Exact messages per requirements
         if (errorMsg.includes("Account not found") || errorMsg.includes("User not found")) {
           setError("Account not found. Please Sign Up first.");
         } else if (errorMsg.includes("Invalid email or password") || errorMsg.includes("Invalid")) {
@@ -80,30 +82,10 @@ function LoginForm({ user }) {
         } else {
           setError("Login failed");
         }
-      } else if (typeof result === "string") {
-        if (result.includes("/auth/error")) {
-          const errorUrl = new URL(result, window.location.origin);
-          const errorParam = errorUrl.searchParams.get("error");
-          if (errorParam) {
-            setError(decodeURIComponent(errorParam));
-          } else {
-            setError("Account not found. Please Sign Up first.");
-          }
-        } else if (result.includes("/auth/login")) {
-          setError("Invalid email or password");
-        } else {
-          setError("Login failed");
-        }
       } else {
-        const currentError = searchParams.get("error");
-        if (currentError) {
-          setError(decodeURIComponent(currentError));
-        } else {
-          setError("Login failed");
-        }
+        setError("Login failed");
       }
     } catch (err) {
-      console.error("Login exception:", err);
       setError(err.message || "Login failed");
     } finally {
       setLoading(false);
@@ -144,6 +126,11 @@ function LoginForm({ user }) {
           {error && (
             <div className="mb-6 p-4 bg-red-500/10 border border-red-400/20 rounded-xl text-red-300 text-sm animate-in slide-in-from-top-2 duration-300">
               {error}
+            </div>
+          )}
+          {success && (
+            <div className="mb-6 p-4 bg-green-500/10 border border-green-400/20 rounded-xl text-green-300 text-sm animate-in slide-in-from-top-2 duration-300">
+              {success}
             </div>
           )}
 

@@ -55,10 +55,8 @@ function RegisterForm({ user }) {
 
       const data = await response.json();
 
-      console.log("Register API result:", data);
-
       if (response.ok && data.success) {
-        // Now sign in with credentials to establish session
+        // Now sign in with credentials to establish session and redirect
         const result = await signIn("credentials", {
           email,
           password,
@@ -71,17 +69,18 @@ function RegisterForm({ user }) {
           router.refresh();
           return;
         }
-      }
 
-      if (data.error) {
-        const errorMsg = data.error;
-        if (errorMsg.includes("already exists") || errorMsg.includes("11000")) {
-          setError("Account already exists. Please Sign In.");
+        if (result?.error) {
+          setError(result.error);
         } else {
-          setError(errorMsg);
+          setError("Registration succeeded but auto-login failed. Please sign in manually.");
         }
       } else {
-        setError("Registration failed");
+        if (data.error) {
+          setError(data.error);
+        } else {
+          setError("Registration failed");
+        }
       }
     } catch (err) {
       console.error("Register exception:", err);

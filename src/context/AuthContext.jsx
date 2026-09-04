@@ -8,22 +8,9 @@ const AuthContext = createContext();
 
 export function AuthProvider({ children, initialUser = null }) {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [user, setUser] = useState(initialUser);
   const [isLoading, setIsLoading] = useState(true);
-
-  // Use useSession for real-time session updates on client side
-  let session = null;
-  let status = "loading";
-  
-  try {
-    const sessionResult = useSession();
-    session = sessionResult.data;
-    status = sessionResult.status;
-  } catch (e) {
-    // useSession not available (e.g., during static generation)
-    session = null;
-    status = "unauthenticated";
-  }
 
   useEffect(() => {
     if (status === "loading") {
@@ -31,7 +18,6 @@ export function AuthProvider({ children, initialUser = null }) {
       return;
     }
 
-    // Prefer server-side session, then fall back to client-side session
     if (session?.user) {
       setUser(session.user);
     } else if (!initialUser) {
@@ -48,52 +34,57 @@ export function AuthProvider({ children, initialUser = null }) {
         redirect: false,
       });
 
-      console.log("signIn result:", result);
-
       if (result?.error) {
-        console.error("Login error:", result.error);
         return { success: false, error: result.error };
       }
 
       if (result?.ok) {
-        router.push(redirectTo);
+        // Refresh session to get updated user data
         router.refresh();
+        router.push(redirectTo);
         return { success: true };
       }
 
-      // If no error but not ok, treat as failure
       return { success: false, error: "Invalid email or password" };
     } catch (error) {
-      console.error("Login exception:", error);
       return { success: false, error: error.message || "Login failed" };
     }
   };
 
   const register = async (name, email, password, redirectTo = "/dashboard") => {
     try {
+      // First create the account via API
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        return { success: false, error: data.error || "Registration failed" };
+      }
+
+      // Now sign in with credentials to establish session
       const result = await signIn("credentials", {
-        name,
         email,
         password,
         redirect: false,
       });
 
-      console.log("Register result:", result);
-
       if (result?.error) {
-        console.error("Register error:", result.error);
         return { success: false, error: result.error };
       }
 
       if (result?.ok) {
-        router.push(redirectTo);
         router.refresh();
+        router.push(redirectTo);
         return { success: true };
       }
 
-      return { success: false, error: "Registration failed" };
+      return { success: false, error: "Registration succeeded but login failed" };
     } catch (error) {
-      console.error("Register exception:", error);
       return { success: false, error: error.message || "Registration failed" };
     }
   };
