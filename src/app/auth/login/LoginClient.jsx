@@ -94,7 +94,7 @@ function LoginForm({ user }) {
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
 
-  // Google SVG Icon
+  // Google SVG Icon - Original
   const googleIcon = (
     <svg className="w-5 h-5" viewBox="0 0 24 24">
       <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -104,7 +104,7 @@ function LoginForm({ user }) {
     </svg>
   );
 
-  // Apple SVG Icon
+  // Apple SVG Icon - Original
   const appleIcon = (
     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
       <path d="M18.71 19.56c-.17-.07-.35-.1-.53-.1H12v4.26h3.64c.74-.88 1.38-1.95 1.85-3.14.36-.79.55-1.64.55-2.54V9.25c0-1.22-.47-2.33-1.41-3.22-.68-.65-1.67-1.02-2.66-1.02-.9 0-1.72.3-2.4.9-.43.36-.7.8-.7 1.28V3.22h5.43c1.03.97 1.64 2.25 1.64 3.66 0 2.75-1.88 5.07-4.48 5.9-.94.31-1.93.5-2.97.5-2.75 0-5-1.5-6.09-3.75l-.56.56C14.55 15.63 17.58 17.6 19.5 18.13c.6-.31 1.18-.71 1.69-1.21.22-.2.42-.43.6-.68.02-.02.04-.03.06-.05.03-.03.05-.06.08-.1v-.03zm-3.7-7.04c-.24.35-.53.67-.86.97-.68.63-1.48 1.02-2.4 1.02-.92 0-1.73-.4-2.33-1.02C13.72 16.95 13 16.17 13 15c0-1.2.66-2.27 1.6-2.81.38-.2.78-.36 1.17-.51l.06-.04.04-.03.02-.01-.02.02-.02.01-.01 0z"/>
@@ -165,7 +165,7 @@ function LoginForm({ user }) {
                   placeholder="••••••••"
                   autoComplete="current-password"
                 />
-                <button
+<button
                   type="button"
                   onClick={togglePasswordVisibility}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-colors"
@@ -178,7 +178,7 @@ function LoginForm({ user }) {
                     </svg>
                   ) : (
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88a3 3 0 114.242-4.242M9.88 9.88L3 3m6.88 6.88a3 3 0 11-4.242 4.242M9.88 9.88l-2.82-2.82M15.12 15.12l-2.82-2.82" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88a3 3 0 114.242-4.242M9.88 9.88L3 3m6.88 6.88a3 3 0 11-4.242 4.242M9.88 9.88L3 3m6.88 6.88a3 3 0 11-4.242 4.242M9.88 9.88l-2.82-2.82M15.12 15.12l-2.82-2.82" />
                     </svg>
                   )}
                 </button>

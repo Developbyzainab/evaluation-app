@@ -77,7 +77,7 @@ export default function Dashboard() {
         </div>
 
         <div className="mt-12 grid gap-6 md:grid-cols-3">
-          <Link href="/evaluate" className="group rounded-2xl border border-white/[0.07] bg-white/[0.025] p-6 transition hover:border-violet-400/20 hover:bg-violet-500/[0.025]">
+          <Link href="/evaluate" className="group glass-card">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-500/10 text-xl text-violet-300">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5} className="w-6 h-6">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182C10.464 6.781 11.232 7 12 7c.725 0 1.45.22 2.003.659 1.172.879 1.172 2.303 0 3.182z" />
@@ -88,7 +88,7 @@ export default function Dashboard() {
             <p className="mt-2 text-sm text-zinc-500">Create a new skill evaluation and test your knowledge</p>
           </Link>
 
-          <Link href="/dashboard/evaluations" className="group rounded-2xl border border-white/[0.07] bg-white/[0.025] p-6 transition hover:border-violet-400/20 hover:bg-violet-500/[0.025]">
+          <Link href="/dashboard/evaluations" className="group glass-card">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-500/10 text-xl text-cyan-300">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5} className="w-6 h-6">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
@@ -98,7 +98,7 @@ export default function Dashboard() {
             <p className="mt-2 text-sm text-zinc-500">View and manage your past evaluations</p>
           </Link>
 
-          <Link href="/dashboard/results" className="group rounded-2xl border border-white/[0.07] bg-white/[0.025] p-6 transition hover:border-violet-400/20 hover:bg-violet-500/[0.025]">
+          <Link href="/dashboard/results" className="group glass-card">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-xl text-emerald-300">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5} className="w-6 h-6">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.015" />
@@ -111,7 +111,7 @@ export default function Dashboard() {
 
         <div className="mt-12">
           <h2 className="text-2xl font-bold mb-6">Recent Activity</h2>
-          <div className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-6 text-center text-zinc-500">
+          <div className="glass-card text-center text-zinc-500">
             No evaluations yet. <Link href="/evaluate" className="text-violet-400 hover:text-violet-300 font-medium ml-2">Start your first evaluation</Link>
           </div>
         </div>

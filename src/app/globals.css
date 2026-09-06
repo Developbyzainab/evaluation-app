@@ -125,6 +125,7 @@ button {
 .form-input:focus {
   border-color: rgba(139, 92, 246, 0.5);
   box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.07);
+  outline: none;
 }
 
 select.form-input {
@@ -208,7 +209,7 @@ select.form-input {
 
 .skill-select:hover {
   border-color: rgba(139, 92, 246, 0.25);
-  color: #d4d4d8;
+  color: #d4d4d7;
   transform: translateY(-2px);
 }
 
@@ -837,6 +838,6 @@ select.form-input {
   .cert-completion-ribbon {
     right: 0;
     bottom: 0;
-    align-self: stretch;
+    align-self: stretch.
   }
 }

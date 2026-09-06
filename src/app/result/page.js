@@ -98,7 +98,7 @@ export default function ResultPage() {
         <div className="mt-6 grid gap-5 md:grid-cols-2">
           <div className="rounded-3xl border border-green-400/10 bg-green-500/[0.025] p-6 sm:p-8">
             <p className="text-xs uppercase tracking-widest text-green-400">
-              {isUrdu ? "مضبوط方面" : "Strengths"}
+              {isUrdu ? "مضبوط جوانب" : "Strengths"}
             </p>
 
             <h2 className="mt-2 text-xl font-bold">
@@ -133,7 +133,7 @@ export default function ResultPage() {
 
           <div className="rounded-3xl border border-orange-400/10 bg-orange-500/[0.025] p-6 sm:p-8">
             <p className="text-xs uppercase tracking-widest text-orange-400">
-              {isUrdu ? "بہتری کے方面" : "Focus Areas"}
+              {isUrdu ? "بہتری کے جوانب" : "Focus Areas"}
             </p>
 
             <h2 className="mt-2 text-xl font-bold">
@@ -245,7 +245,7 @@ export default function ResultPage() {
                     : "You demonstrated strong understanding across the evaluated skills. Your next step should be advanced practical projects and deeper problem-solving."
                   : percentage >= 60
                   ? isUrdu
-                    ? "آپ کے پاس مضبوط بنیاد ہے۔ عملی پروجیکٹس پر توجہ دیں اور उन علاقوں کو مضبوط بنائیں جہاں آپ کا سکور کم تھا۔"
+                    ? "آپ کے پاس مضبوط بنیاد ہے۔ عملی پروجیکٹس پر توجہ دیں اور ان علاقوں کو مضبوط بنائیں جہاں آپ کا سکور کم تھا۔"
                     : "You have a solid foundation. Focus on practical projects and strengthen the areas where your score was lower."
                   : isUrdu
                     ? "آپ اپنی بنیاد بنا رہے ہیں۔ بنیادی اصولوں پر مسلسل مشق کریں اور چھوٹے حقیقی پروجیکٹس پر کام کریں۔"

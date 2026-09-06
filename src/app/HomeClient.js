@@ -148,6 +148,12 @@ export default function HomeClient({ user }) {
                   <Link href="/dashboard" onClick={() => setIsProfileOpen(false)} className="mt-1 block rounded-xl px-3 py-2 text-sm text-zinc-300 transition hover:bg-white/[0.06] hover:text-white">
                     Profile / Account
                   </Link>
+                  <Link href="/dashboard/evaluations" onClick={() => setIsProfileOpen(false)} className="block rounded-xl px-3 py-2 text-sm text-zinc-300 transition hover:bg-white/[0.06] hover:text-white">
+                    My Evaluations
+                  </Link>
+                  <Link href="/dashboard/results" onClick={() => setIsProfileOpen(false)} className="block rounded-xl px-3 py-2 text-sm text-zinc-300 transition hover:bg-white/[0.06] hover:text-white">
+                    Results & Certificates
+                  </Link>
                   <button
                     type="button"
                     onClick={async () => {
@@ -195,7 +201,7 @@ export default function HomeClient({ user }) {
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <button
                 onClick={handleStartEvaluation}
-                className="group relative overflow-hidden rounded-2xl bg-white px-7 py-4 text-center text-sm font-bold text-black transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_60px_rgba(139,92,246,0.18)]"
+                className="group relative overflow-hidden rounded-2xl bg-white px-7 py-4 text-center text-sm font-bold text-black transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-violet-500/20"
               >
                 <span className="relative z-10">
                   Start Your Evaluation
@@ -465,7 +471,7 @@ function SectionHeading({ eyebrow, title, text }) {
         {title}
       </h2>
 
-      <p className="mt-4 text-sm leading-7 text-zinc-600">
+      <p className="mt-4 text-sm leading-7 text-zinc-500">
         {text}
       </p>
     </div>
@@ -488,7 +494,7 @@ function Step({ number, title, text }) {
           {title}
         </h3>
 
-        <p className="mt-3 text-sm leading-7 text-zinc-600">
+        <p className="mt-3 text-sm leading-7 text-zinc-500">
           {text}
         </p>
       </div>
