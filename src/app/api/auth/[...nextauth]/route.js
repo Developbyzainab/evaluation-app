@@ -1,7 +1,6 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-import AppleProvider from "next-auth/providers/apple";
 import connectDB from "@/lib/mongodb";
 import User from "@/models/User";
 import bcrypt from "bcryptjs";
@@ -61,16 +60,10 @@ export const authOptions = {
       clientId: process.env.GOOGLE_CLIENT_ID || "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
     }),
-    AppleProvider({
-      clientId: process.env.APPLE_CLIENT_ID || "",
-      teamId: process.env.APPLE_TEAM_ID || "",
-      keyId: process.env.APPLE_KEY_ID || "",
-      privateKey: process.env.APPLE_PRIVATE_KEY || "",
-    }),
   ],
   callbacks: {
     async signIn({ user, account, profile }) {
-      if (account?.provider === "google" || account?.provider === "apple") {
+      if (account?.provider === "google") {
         try {
           await connectDB();
 
@@ -128,6 +121,18 @@ export const authOptions = {
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60,
+  },
+  cookies: {
+    sessionToken: {
+      name: "next-auth.session-token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 30 * 24 * 60 * 60,
+      },
+    },
   },
   secret: process.env.NEXTAUTH_SECRET,
   debug: process.env.NODE_ENV === "development",

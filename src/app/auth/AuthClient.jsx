@@ -176,18 +176,12 @@ function AuthForm({ user }) {
       />
       <path
         fill="#FBBC05"
-        d="M5.78,14.342c-.209-.62-.315-1.276-.315-1.955s.106-1.33.315-1.955V8.109H2.18C1.43,8.55,1,10.22,1,12s.43,3.45,1.18,4.93l2.85-2.22.81-.62z"
+        d="M5.78,14.342c-.209-.62-.315-1.276-.315-1.955s.106-1.33.315-1.955V8.109H2.18C1.43,8.55,1,10.22,1,12s.43,2.46,1.186,4.93l2.85-2.22.81-.62z"
       />
       <path
         fill="#EA4335"
         d="M12.545,6.288c2.002,0,3.778,.739,5.121,2.044l3.15-3.15C17.45,2.09,14.97,1,12,1,7.7,1,3.99,3.47,2.18,7.07l3.66,2.84c.87-2.6,3.3-4.53,6.16-4.53z"
       />
-    </svg>
-  );
-
-  const appleIcon = (
-    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-      <path d="M18.71 19.56c-.17-.07-.35-.1-.53-.1H12v4.26h3.64c.74-.88 1.38-1.95 1.85-3.14.36-.79.55-1.64.55-2.54V9.25c0-1.22-.47-2.33-1.41-3.22-.68-.65-1.67-1.02-2.66-1.02-.9 0-1.72.3-2.4.9-.43.36-.7.8-.7 1.28V3.22h5.43c1.03.97 1.64 2.25 1.64 3.66 0 2.75-1.88 5.07-4.48 5.9-.94.31-1.93.5-2.97.5-2.75 0-5-1.5-6.09-3.75l-.56.56C14.55 15.63 17.58 17.6 19.5 18.13c.6-.31 1.18-.71 1.69-1.21.22-.2.42-.43.6-.68.02-.02.04-.03.06-.05.03-.03.05-.06.08-.1v-.03zm-3.7-7.04c-.24.35-.53.67-.86.97-.68.63-1.48 1.02-2.4 1.02-.92 0-1.73-.4-2.33-1.02C13.72 16.95 13 16.17 13 15c0-1.2.66-2.27 1.6-2.81.38-.2.78-.36 1.17-.51l.06-.04.04-.03.02-.01-.02.02-.02.01-.01 0z"/>
     </svg>
   );
 
@@ -273,15 +267,13 @@ function AuthForm({ user }) {
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? (
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.5 19.5A8.5 8.5 0 105.5 11A8.5 8.5 0 0010.5 19.5Z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 6L6 18M6 6l12 12" />
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
                   ) : (
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.5 19.5A8.5 8.5 0 015.5 11A8.5 8.5 0 0010.5 19.5Z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.5 7.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21.5 11.5a9.5 9.5 0 00-19 0" />
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88a3 3 0 114.242-4.242M9.88 9.88L3 3m6.88 6.88a3 3 0 11-4.242 4.242M9.88 9.88L3 3m6.88 6.88a3 3 0 11-4.242 4.242M9.88 9.88l-2.82-2.82M15.12 15.12l-2.82-2.82" />
                     </svg>
                   )}
                 </button>
@@ -312,15 +304,13 @@ function AuthForm({ user }) {
                     aria-label={showConfirmPassword ? "Hide password" : "Show password"}
                   >
                     {showConfirmPassword ? (
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.5 19.5A8.5 8.5 0 105.5 11A8.5 8.5 0 0010.5 19.5Z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 6L6 18M6 6l12 12" />
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                       </svg>
                     ) : (
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.5 19.5A8.5 8.5 0 015.5 11A8.5 8.5 0 0010.5 19.5Z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.5 7.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21.5 11.5a9.5 9.5 0 00-19 0" />
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88a3 3 0 114.242-4.242M9.88 9.88L3 3m6.88 6.88a3 3 0 11-4.242 4.242M9.88 9.88L3 3m6.88 6.88a3 3 0 11-4.242 4.242M9.88 9.88l-2.82-2.82M15.12 15.12l-2.82-2.82" />
                       </svg>
                     )}
                   </button>
@@ -370,16 +360,6 @@ function AuthForm({ user }) {
             >
               {googleIcon}
               <span className="font-medium">Continue with Google</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleOAuthLogin("apple")}
-              disabled={loading}
-              className="w-full flex items-center justify-center gap-4 py-3.5 px-6 rounded-xl border border-[#2a2a4a] bg-[#0f0f1a] text-white font-medium transition-all hover:bg-[#1a1a2e] hover:border-violet-400/30 focus:outline-none focus:ring-2 focus:ring-violet-500/30 disabled:opacity-50"
-            >
-              {appleIcon}
-              <span className="font-medium">Continue with Apple</span>
             </button>
           </div>
 
