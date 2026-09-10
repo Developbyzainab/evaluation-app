@@ -47,7 +47,7 @@ export default function TestPage() {
   // Auth check - redirect to login if not authenticated
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      router.push("/auth/login");
+      router.push("/auth/login?redirect=/test");
     }
   }, [isAuthenticated, isLoading, router]);
 
@@ -236,7 +236,7 @@ export default function TestPage() {
     finishAssessment();
   }
 
-  function finishAssessment(violated = false) {
+  async function finishAssessment(violated = false) {
     if (submitting || testEnded) return;
     setSubmitting(true);
     setTestEnded(true);
@@ -328,6 +328,27 @@ export default function TestPage() {
 
     const certificate = createCertificate(assessment, result);
     result.certificateId = certificate.id;
+
+    // Save to MongoDB
+    if (user?.id) {
+      try {
+        await fetch("/api/test-attempt", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: user.id,
+            ...result,
+            certificate: {
+              id: certificate.id,
+              verificationUrl: certificate.verificationUrl,
+              pdfUrl: certificate.pdfUrl,
+            },
+          }),
+        });
+      } catch (err) {
+        console.error("Failed to save to MongoDB:", err);
+      }
+    }
 
     // Save to user's test history
     const testHistoryKey = `skilleval-history-${user?.id}`;

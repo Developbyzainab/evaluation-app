@@ -34,11 +34,7 @@ export default function HomeClient({ user }) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const handleStartEvaluation = () => {
-    if (!isAuthenticated) {
-      window.location.href = "/auth/login?redirect=/evaluate";
-    } else {
-      router.push("/evaluate");
-    }
+    router.push("/evaluate");
   };
 
   return (

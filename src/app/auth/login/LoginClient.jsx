@@ -140,7 +140,7 @@ function LoginForm({ user }) {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 className="mt-1 w-full px-4 py-3 rounded-xl border border-[#2a2a4a] bg-[#0f0f1a] text-white placeholder:text-zinc-600 focus:border-violet-400/50 focus:ring-2 focus:ring-violet-500/20 focus:outline-none transition-all"
-                placeholder="you@company.com"
+                placeholder="Enter your Email"
                 autoComplete="email"
               />
             </div>

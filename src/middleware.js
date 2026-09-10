@@ -1,11 +1,37 @@
 import { NextResponse } from 'next/server';
 
 export function middleware(request) {
-  // Force dynamic rendering for all routes by adding a header
-  // This prevents static generation for pages that use auth context
-  const response = NextResponse.next();
+  const { pathname } = request.nextUrl;
   
-  // Add a header to indicate dynamic rendering
+  // Protect admin routes
+  if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
+    // Check for admin token in cookies
+    const adminToken = request.cookies.get('admin_token')?.value;
+    
+    if (!adminToken) {
+      // Redirect to admin login
+      const loginUrl = new URL('/admin/login', request.url);
+      loginUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+    
+    // Validate token (basic check - could be enhanced)
+    try {
+      const tokenData = JSON.parse(atob(adminToken));
+      if (tokenData.expires <= Date.now()) {
+        const response = NextResponse.redirect(new URL('/admin/login', request.url));
+        response.cookies.delete('admin_token');
+        return response;
+      }
+    } catch (e) {
+      const response = NextResponse.redirect(new URL('/admin/login', request.url));
+      response.cookies.delete('admin_token');
+      return response;
+    }
+  }
+  
+  // Force dynamic rendering for all routes
+  const response = NextResponse.next();
   response.headers.set('x-middleware-cache', 'no-cache');
   
   return response;
