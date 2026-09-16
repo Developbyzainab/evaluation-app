@@ -24,7 +24,7 @@ const features = [
 ];
 
 import allITSkills from "@/data/all-skills";
-import { getSkillIcon } from "@/lib/skill-icons";
+import { getSkillIcon, getBrandColor } from "@/lib/skill-icons";
 
 const skills = allITSkills;
 
@@ -333,32 +333,58 @@ export default function HomeClient({ user }) {
         </div>
       </section>
 
-      {/* Skills */}
-      <section
-        id="skills"
-        className="border-y border-white/[0.05] bg-white/[0.012]"
-      >
-        <div className="mx-auto max-w-7xl px-5 py-24 lg:px-8">
-          <SectionHeading
-            eyebrow="Skill Universe"
-            title="Evaluate what you know."
-            text="Choose the skills that matter to your career and build an assessment around them."
-          />
+   {/* Skills */}
+<section
+  id="skills"
+  className="border-y border-white/[0.05] bg-white/[0.012]"
+>
+  <div className="mx-auto max-w-7xl px-5 py-24 lg:px-8">
+    <SectionHeading
+      eyebrow="Skill Universe"
+      title="Evaluate what you know."
+      text="Choose the skills that matter to your career and build an assessment around them."
+    />
 
-          <div className="mx-auto mt-12 flex max-w-4xl flex-wrap justify-center gap-3">
-            {skills.map((skillObj, index) => (
-              <span
-                key={`${skillObj.name}-${skillObj.category}-${index}`}
-                className={`skill-pill flex items-center gap-2 cursor-pointer ${index % 4 === 0 ? "border-violet-400/20 text-violet-200" : ""}`}
-              >
-                {getSkillIcon(skillObj.category)}
-                {skillObj.name}
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
+    <div className="mx-auto mt-12 flex max-w-6xl flex-wrap justify-center gap-2">
+      {skills.map((skillObj, index) => {
+        const brandColor = getBrandColor(skillObj.name, skillObj.category);
+        return (
+          <span
+            key={`${skillObj.name}-${skillObj.category}-${index}`}
+            className="group inline-flex cursor-pointer items-center gap-2 rounded-[10px] border border-white/10 px-3.5 py-2 text-[12px] font-medium transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.03]"
+            style={{
+              borderColor: `${brandColor}60`,
+              background: `linear-gradient(135deg, ${brandColor}15, ${brandColor}05, transparent)`,
+              boxShadow: `inset 0 0 20px ${brandColor}30, 0 0 12px -4px ${brandColor}30`,
+              color: brandColor,
+            }}
+          >
+            <span
+              className="flex h-6 w-6 shrink-0 items-center justify-center rounded overflow-hidden relative"
+              style={{
+                background: `linear-gradient(135deg, ${brandColor}30, ${brandColor}10)`,
+                boxShadow: `0 0 8px ${brandColor}60`,
+              }}
+            >
+              <img
+                src={`/logos/skill${index + 1}.png`}
+                alt={skillObj.name}
+                className="h-full w-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+            </span>
 
+            <span className="whitespace-nowrap" style={{ color: "white" }}>
+              {skillObj.name}
+            </span>
+          </span>
+        );
+      })}
+    </div>
+  </div>
+</section>
       {/* How */}
       <section
         id="how"
@@ -496,4 +522,73 @@ function Step({ number, title, text }) {
       </div>
     </div>
   );
+}
+
+function getShadowColor(skillName) {
+  const shadows = {
+    "HTML": "rgba(230, 98, 28, 0.4)",
+    "HTML5": "rgba(230, 98, 28, 0.4)",
+    "CSS": "rgba(59, 130, 246, 0.4)",
+    "CSS3": "rgba(59, 130, 246, 0.4)",
+    "JavaScript": "rgba(234, 179, 8, 0.4)",
+    "TypeScript": "rgba(37, 99, 235, 0.4)",
+    "React": "rgba(6, 182, 212, 0.4)",
+    "Next.js": "rgba(51, 65, 85, 0.4)",
+    "Vue.js": "rgba(34, 197, 94, 0.4)",
+    "Angular": "rgba(239, 68, 68, 0.4)",
+    "Svelte": "rgba(249, 115, 22, 0.4)",
+    "Tailwind CSS": "rgba(6, 182, 212, 0.4)",
+    "Node.js": "rgba(34, 197, 94, 0.4)",
+    "Python": "rgba(59, 130, 246, 0.4)",
+    "Django": "rgba(22, 163, 74, 0.4)",
+    "MongoDB": "rgba(34, 197, 94, 0.4)",
+    "PostgreSQL": "rgba(37, 99, 235, 0.4)",
+    "MySQL": "rgba(249, 115, 22, 0.4)",
+    "Redis": "rgba(239, 68, 68, 0.4)",
+    "AWS": "rgba(249, 115, 22, 0.4)",
+    "Docker": "rgba(59, 130, 246, 0.4)",
+    "Kubernetes": "rgba(37, 99, 235, 0.4)",
+    "Git": "rgba(249, 115, 22, 0.4)",
+    "GitHub": "rgba(51, 65, 85, 0.4)",
+    "TypeScript": "rgba(37, 99, 235, 0.4)",
+    "Next.js": "rgba(51, 65, 85, 0.4)",
+    "Vue.js": "rgba(34, 197, 94, 0.4)",
+    "Angular": "rgba(239, 68, 68, 0.4)",
+    "Tailwind CSS": "rgba(6, 182, 212, 0.4)",
+    "Express.js": "rgba(51, 65, 85, 0.4)",
+    "FastAPI": "rgba(20, 184, 166, 0.4)",
+    "Flask": "rgba(51, 65, 85, 0.4)",
+    "Java": "rgba(249, 115, 22, 0.4)",
+    "Spring Boot": "rgba(22, 163, 74, 0.4)",
+    "Go": "rgba(6, 182, 212, 0.4)",
+    "Rust": "rgba(249, 115, 22, 0.4)",
+    "C#": "rgba(168, 85, 247, 0.4)",
+    ".NET": "rgba(168, 85, 247, 0.4)",
+    "PHP": "rgba(168, 85, 247, 0.4)",
+    "Laravel": "rgba(239, 68, 68, 0.4)",
+    "PostgreSQL": "rgba(37, 99, 235, 0.4)",
+    "MySQL": "rgba(249, 115, 22, 0.4)",
+    "Redis": "rgba(239, 68, 68, 0.4)",
+    "Firebase": "rgba(251, 146, 60, 0.4)",
+    "Supabase": "rgba(34, 197, 94, 0.4)",
+    "Prisma": "rgba(99, 102, 241, 0.4)",
+    "Terraform": "rgba(168, 85, 247, 0.4)",
+    "Kubernetes": "rgba(37, 99, 235, 0.4)",
+    "Linux": "rgba(249, 115, 22, 0.4)",
+    "React Native": "rgba(6, 182, 212, 0.4)",
+    "Flutter": "rgba(59, 130, 246, 0.4)",
+    "Dart": "rgba(59, 130, 246, 0.4)",
+    "Kotlin": "rgba(168, 85, 247, 0.4)",
+    "Swift": "rgba(249, 115, 22, 0.4)",
+    "TensorFlow": "rgba(249, 115, 22, 0.4)",
+    "PyTorch": "rgba(249, 115, 22, 0.4)",
+    "OpenAI API": "rgba(34, 197, 94, 0.4)",
+    "Git": "rgba(249, 115, 22, 0.4)",
+    "GitLab": "rgba(239, 68, 68, 0.4)",
+    "Jenkins": "rgba(239, 68, 68, 0.4)",
+    "Terraform": "rgba(168, 85, 247, 0.4)",
+    "Kubernetes": "rgba(37, 99, 235, 0.4)",
+    "Linux": "rgba(249, 115, 22, 0.4)",
+  };
+  return shadows[skillName] || "rgba(139, 92, 246, 0.4)";
 }

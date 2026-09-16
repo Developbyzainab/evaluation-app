@@ -34,21 +34,30 @@ export async function POST(request) {
       const response = NextResponse.json({ success: true });
 
       // Secure token (HttpOnly) for server-side validation
-      response.cookies.set("admin_token", token, {
+      // Works on localhost and production
+      const isProduction = process.env.NODE_ENV === "production";
+      const cookieOptions = {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: isProduction, // true in production, false on localhost
         sameSite: "lax",
-        maxAge: 30 * 24 * 60 * 60,
+        maxAge: 30 * 24 * 60 * 60, // 30 days
         path: "/",
-      });
+      };
+
+      response.cookies.set("admin_token", token, cookieOptions);
 
       // Non-HttpOnly cookie for client-side profile display
       response.cookies.set("admin_username", adminUsername, {
+        ...cookieOptions,
         httpOnly: false,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 30 * 24 * 60 * 60,
-        path: "/",
+      });
+
+      console.log("Admin login successful, cookies set:", {
+        admin_token: "set",
+        admin_username: "set",
+        maxAge: cookieOptions.maxAge,
+        secure: cookieOptions.secure,
+        sameSite: cookieOptions.sameSite,
       });
 
       return response;

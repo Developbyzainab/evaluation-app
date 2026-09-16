@@ -1,10 +1,7 @@
 "use client";
 
-export const dynamic = 'force-dynamic';
-
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import Link from "next/link";
+import { useEffect, useState, useRef } from "react";
 
 export default function AdminActivity() {
   const router = useRouter();
@@ -14,12 +11,21 @@ export default function AdminActivity() {
   const [page, setPage] = useState(1);
   const [loadingMore, setLoadingMore] = useState(false);
 
-  const fetchActivity = async (pageNum = 1, append = false) => {
-    setLoading(pageNum === 1);
-    setLoadingMore(pageNum > 1);
+  const abortRef = useRef(null);
+  const isFirstLoad = useRef(true);
+
+  const fetchActivity = async (pageNum, append) => {
+    // cancel stale request
+    if (abortRef.current) abortRef.current.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    if (pageNum > 1) setLoadingMore(true);
 
     try {
-      const res = await fetch(`/api/admin/activity?page=${pageNum}&limit=30`);
+      const res = await fetch(`/api/admin/activity?page=${pageNum}&limit=30`, {
+        signal: controller.signal,
+      });
       if (res.ok) {
         const data = await res.json();
         if (append) {
@@ -30,24 +36,33 @@ export default function AdminActivity() {
         setTotal(data.total);
       }
     } catch (error) {
-      console.error("Failed to fetch activity:", error);
+      if (error.name !== "AbortError") {
+        console.error("Failed to fetch activity:", error);
+      }
     } finally {
       setLoading(false);
       setLoadingMore(false);
     }
   };
 
+  // ✅ Initial load — only once
   useEffect(() => {
-    fetchActivity(1);
+    if (isFirstLoad.current) {
+      isFirstLoad.current = false;
+      fetchActivity(1, false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // ✅ loadMore — page increment bhi karta hai (pehle bug tha)
   const loadMore = () => {
-    if (!loadingMore) {
-      fetchActivity(page + 1, true);
-    }
+    if (loadingMore) return;
+    const next = page + 1;
+    setPage(next);
+    fetchActivity(next, true);
   };
 
-  if (loading) {
+  if (loading && activities.length === 0) {
     return (
       <main className="min-h-screen bg-[#05050a] flex items-center justify-center">
         <div className="animate-pulse w-96 h-96 bg-[#0a0a10] rounded-2xl" />
@@ -70,7 +85,7 @@ export default function AdminActivity() {
           <p className="text-zinc-500 mt-1">Real-time platform activity from MongoDB records</p>
         </div>
 
-        {activities.length === 0 ? (
+        {activities.length === 0 && !loading ? (
           <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-10 text-center text-zinc-500">
             No activity recorded yet
           </div>

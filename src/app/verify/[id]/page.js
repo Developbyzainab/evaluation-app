@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { getCertificateById } from "../../../lib/certificate";
 
 export default function VerifyPage() {
   const params = useParams();
@@ -15,17 +14,27 @@ export default function VerifyPage() {
   useEffect(() => {
     const id = params.id;
     if (!id) {
-      router.push("/dashboard");
+      router.push("/");
       return;
     }
 
-    const cert = getCertificateById(id);
-    if (cert) {
-      setCertificate(cert);
-    } else {
-      setNotFound(true);
-    }
-    setLoading(false);
+    const fetchCertificate = async () => {
+      try {
+        const res = await fetch(`/api/certificates/${id}`);
+        if (res.ok) {
+          const data = await res.json();
+          setCertificate(data);
+        } else {
+          setNotFound(true);
+        }
+      } catch (e) {
+        console.error("Failed to fetch certificate:", e);
+        setNotFound(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCertificate();
   }, [params.id, router]);
 
   if (loading) {
@@ -61,7 +70,7 @@ export default function VerifyPage() {
     );
   }
 
-  const isVerified = certificate && certificate.id;
+  const isVerified = certificate && certificate.certificateId;
 
   return (
     <main className="min-h-screen bg-[#05050a] flex items-center justify-center px-4 py-12">
@@ -83,11 +92,15 @@ export default function VerifyPage() {
               <div className="mt-6 space-y-3 text-left">
                 <div className="flex justify-between border-b border-white/[0.06] pb-2">
                   <span className="text-zinc-500">Name</span>
-                  <span className="text-white font-medium">{certificate.name}</span>
+                  <span className="text-white font-medium">{certificate.userName || certificate.name}</span>
                 </div>
                 <div className="flex justify-between border-b border-white/[0.06] pb-2">
                   <span className="text-zinc-500">Certificate ID</span>
-                  <span className="text-white font-mono text-sm">{certificate.id}</span>
+                  <span className="text-white font-mono text-sm">{certificate.certificateId || certificate.id}</span>
+                </div>
+                <div className="flex justify-between border-b border-white/[0.06] pb-2">
+                  <span className="text-zinc-500">Skill</span>
+                  <span className="text-white">{certificate.skill}</span>
                 </div>
                 <div className="flex justify-between border-b border-white/[0.06] pb-2">
                   <span className="text-zinc-500">Score</span>
@@ -99,13 +112,13 @@ export default function VerifyPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-zinc-500">Date</span>
-                  <span className="text-white">{new Date(certificate.date).toLocaleDateString()}</span>
+                  <span className="text-white">{new Date(certificate.issuedAt || certificate.date).toLocaleDateString()}</span>
                 </div>
               </div>
 
               <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
                 <Link
-                  href={`/certificate/${certificate.id}`}
+                  href={`/certificate/${certificate.certificateId || certificate.id}`}
                   className="inline-flex rounded-xl bg-violet-600 px-6 py-3 text-sm font-bold text-white hover:bg-violet-700 transition"
                 >
                   View Full Certificate

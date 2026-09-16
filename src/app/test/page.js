@@ -9,15 +9,76 @@ import { useAuth } from "../../context/AuthContext";
 
 import ProgressBar from "../../components/ProgressBar";
 import QuestionCard from "../../components/QuestionCard";
-import { generateQuestionsForSkills } from "../../lib/ai-questions";
-import { createCertificate, saveCertificate } from "../../lib/certificate";
+import { createCertificate, saveCertificate, saveCertificateToMongo } from "../../lib/certificate";
 
 function shuffle(array) {
   return [...array].sort(() => Math.random() - 0.5);
 }
 
-function getQuestions(skills, difficulty, count, language) {
-  return generateQuestionsForSkills(skills, difficulty.toLowerCase(), count, language);
+async function fetchQuestions(skills, difficulty, count, language) {
+  console.log("Fetching questions for skills:", skills, "difficulty:", difficulty, "count:", count, "language:", language);
+  
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 120000); // 120 second timeout
+  
+  try {
+    const response = await fetch("/api/generate-questions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ skills, difficulty, count, language }),
+      signal: controller.signal
+    });
+    
+    console.log("API response status:", response.status);
+    
+    const data = await response.json();
+    console.log("API response data:", data);
+    
+    if (!response.ok) {
+      if (response.status === 429) {
+        throw new Error("AI question generation is unavailable. Please check your OpenAI API credits and try again.");
+      }
+      if (response.status === 401) {
+        throw new Error("Invalid OpenAI API key. Please check your API key configuration.");
+      }
+      if (response.status === 500) {
+        throw new Error("OpenAI server error. Please try again later.");
+      }
+      if (response.status === 504) {
+        throw new Error("Request timed out. Please try again.");
+      }
+      
+      throw new Error(data.error || "Failed to generate questions");
+    }
+    
+    // Validate questions structure
+    if (!data.questions || data.questions.length === 0) {
+      throw new Error("No questions generated");
+    }
+    
+    const validQuestions = data.questions.filter(q => 
+      q.id && q.question && q.options && Array.isArray(q.options) && q.options.length === 4 && 
+      typeof q.correct === "number" && q.correct >= 0 && q.correct <= 3 && q.skill
+    );
+    
+    if (validQuestions.length === 0) {
+      throw new Error("No valid questions generated for the selected skills");
+    }
+    
+    if (validQuestions.length !== data.questions.length) {
+      console.warn(`Filtered out ${data.questions.length - validQuestions.length} invalid questions`);
+    }
+    
+    console.log("Received valid questions:", validQuestions.length, "for skills:", [...new Set(validQuestions.map(q => q.skill))]);
+    return validQuestions;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      throw new Error("Request timed out. Please try again.");
+    }
+    console.error("AI generation failed completely:", error);
+    throw error;
+  }
 }
 
 const TOTAL_QUESTIONS = 100;
@@ -29,6 +90,7 @@ export default function TestPage() {
 
   const [assessment, setAssessment] = useState(null);
   const [questions, setQuestions] = useState([]);
+  const [generationError, setGenerationError] = useState(null);
 
   const [currentQuestion, setCurrentQuestion] = useState(0);
 
@@ -40,9 +102,13 @@ export default function TestPage() {
   const [testViolated, setTestViolated] = useState(false);
   const [violationReason, setViolationReason] = useState("");
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [generatingQuestions, setGeneratingQuestions] = useState(false);
 
   const timerIntervalRef = useRef(null);
   const startTimeRef = useRef(null);
+
+  // Move isUrdu here so it's available for early returns
+  const isUrdu = assessment?.language === "Urdu";
 
   // Auth check - redirect to login if not authenticated
   useEffect(() => {
@@ -156,7 +222,7 @@ export default function TestPage() {
     };
   }, []);
 
-  useEffect(() => {
+useEffect(() => {
     const saved = localStorage.getItem("skilleval-assessment");
 
     if (!saved) {
@@ -164,25 +230,76 @@ export default function TestPage() {
       return;
     }
 
-    try {
-      const data = JSON.parse(saved);
+    const loadQuestions = async () => {
+      setGeneratingQuestions(true);
+      setGenerationError(null);
+      try {
+        const data = JSON.parse(saved);
+        console.log("Assessment data loaded:", data);
 
-      setAssessment(data);
-      startTimeRef.current = new Date().toISOString();
+        setAssessment(data);
+        startTimeRef.current = new Date().toISOString();
 
-      const generatedQuestions = getQuestions(
-        data.skills || [],
-        data.difficulty || "easy",
-        TOTAL_QUESTIONS,
-        data.language || "English"
-      );
+        const generatedQuestions = await fetchQuestions(
+          data.skills || [],
+          data.difficulty || "easy",
+          TOTAL_QUESTIONS,
+          data.language || "English"
+        );
 
-      setQuestions(generatedQuestions);
-      setTimerActive(true);
-    } catch (error) {
-      console.error("Assessment error:", error);
-      router.push("/evaluate");
-    }
+        if (!generatedQuestions || generatedQuestions.length === 0) {
+          throw new Error("No valid questions generated for the selected skills");
+        }
+
+        // Validate each question has required fields
+        const validQuestions = generatedQuestions.filter(q => 
+          q.id && q.question && q.options && Array.isArray(q.options) && q.options.length === 4 && 
+          typeof q.correct === "number" && q.correct >= 0 && q.correct <= 3 && q.skill
+        );
+
+        if (validQuestions.length === 0) {
+          throw new Error("Generated questions are invalid - missing required fields");
+        }
+
+        if (validQuestions.length !== generatedQuestions.length) {
+          console.warn(`Filtered out ${generatedQuestions.length - validQuestions.length} invalid questions`);
+        }
+
+        // Validate that all selected skills are covered
+        const selectedSkills = new Set(data.skills || []);
+        const coveredSkills = new Set(validQuestions.map(q => q.skill));
+        const missingSkills = [...selectedSkills].filter(s => !coveredSkills.has(s));
+        
+        if (missingSkills.length > 0) {
+          console.warn(`Missing questions for skills: ${missingSkills.join(", ")}`);
+        }
+
+        // Validate that all questions match the selected skills
+        const invalidSkillQuestions = validQuestions.filter(q => !selectedSkills.has(q.skill));
+        if (invalidSkillQuestions.length > 0) {
+          console.warn(`Found ${invalidSkillQuestions.length} questions for unselected skills`);
+        }
+
+        const validQuestionsForSkills = validQuestions.filter(q => selectedSkills.has(q.skill));
+        
+        if (validQuestionsForSkills.length === 0) {
+          throw new Error("No valid questions generated for the selected skills");
+        }
+
+        setQuestions(validQuestionsForSkills);
+        setTimerActive(true);
+      } catch (error) {
+        console.error("Assessment error:", error);
+        // Set error state instead of alerting and redirecting
+        const errorMessage = error.message || "Failed to generate AI questions";
+        setGenerationError(errorMessage);
+        // Don't redirect - let the UI show the error
+      } finally {
+        setGeneratingQuestions(false);
+      }
+    };
+
+    loadQuestions();
   }, [router]);
 
   // Timer logic
@@ -299,7 +416,7 @@ export default function TestPage() {
     const start = startTimeRef.current ? new Date(startTimeRef.current) : endTime;
     const durationMs = endTime - start;
     const durationMinutes = Math.round(durationMs / 60000);
-    const duration = durationMinutes > 0 ? `${durationMinutes} min` : "< 1 min";
+    const duration = durationMinutes > 0 ? durationMinutes : 0; // Send as number (minutes)
 
     const result = {
       ...assessment,
@@ -326,25 +443,28 @@ export default function TestPage() {
       certificateId: null,
     };
 
-    const certificate = createCertificate(assessment, result);
+    const certificate = createCertificate(assessment, result, user);
     result.certificateId = certificate.id;
 
     // Save to MongoDB
     if (user?.id) {
       try {
-        await fetch("/api/test-attempt", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId: user.id,
-            ...result,
-            certificate: {
-              id: certificate.id,
-              verificationUrl: certificate.verificationUrl,
-              pdfUrl: certificate.pdfUrl,
-            },
+        await Promise.all([
+          fetch("/api/test-attempt", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              userId: user.id,
+              ...result,
+              certificate: {
+                id: certificate.id,
+                verificationUrl: certificate.verificationUrl,
+                pdfUrl: certificate.pdfUrl,
+              },
+            }),
           }),
-        });
+          saveCertificateToMongo(certificate),
+        ]);
       } catch (err) {
         console.error("Failed to save to MongoDB:", err);
       }
@@ -395,10 +515,69 @@ export default function TestPage() {
       <main className="flex min-h-screen items-center justify-center bg-[#05050a] text-white" dir={isUrdu ? "rtl" : "ltr"}>
         <div className="text-center">
           <div className="mx-auto h-12 w-12 animate-spin rounded-full border-2 border-violet-500 border-t-transparent" />
-
           <p className="mt-5 text-sm text-zinc-600">
             {isUrdu ? "آپ کا Assessment تیار کیا جا رہا ہے..." : "Preparing your assessment..."}
           </p>
+        </div>
+      </main>
+    );
+  }
+
+  if (generationError) {
+    const isUrdu = assessment?.language === "Urdu";
+    return (
+      <main className="min-h-screen bg-[#05050a] flex items-center justify-center px-4 py-12" dir={isUrdu ? "rtl" : "ltr"}>
+        <div className="w-full max-w-md text-center">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-red-500/10 text-red-400">
+            ⚠️
+          </div>
+          <h1 className="mt-6 text-2xl font-bold text-white">
+            {isUrdu ? "AI سوالات تیار نہیں ہو سکے" : "AI Question Generation Failed"}
+          </h1>
+          <p className="mt-3 text-zinc-400">
+            {generationError}
+          </p>
+          <div className="mt-6 flex gap-3 justify-center">
+            <button
+              onClick={() => { setGenerationError(null); window.location.reload(); }}
+              className="rounded-2xl bg-violet-600 px-6 py-3 font-bold text-white transition hover:bg-violet-700"
+            >
+              {isUrdu ? "دوبارہ کوشش کریں" : "Try Again"}
+            </button>
+            <Link
+              href="/evaluate"
+              className="rounded-2xl border border-white/[0.08] bg-white/[0.03] px-6 py-3 font-bold text-zinc-300 transition hover:border-violet-400/20 hover:text-white"
+            >
+              {isUrdu ? "واپس جائیں" : "Go Back"}
+            </Link>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (generatingQuestions) {
+    const isUrdu = assessment?.language === "Urdu";
+    return (
+      <main className="min-h-screen bg-[#05050a] flex items-center justify-center px-4 py-12" dir={isUrdu ? "rtl" : "ltr"}>
+        <div className="w-full max-w-md text-center">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-violet-500/10 text-violet-300">
+            <svg className="animate-spin h-12 w-12 text-violet-400" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+            </svg>
+          </div>
+          <h1 className="mt-6 text-2xl font-bold text-white">
+            {isUrdu ? "AI سوالات تیار کر رہا ہے..." : "Generating AI Questions..."}
+          </h1>
+          <p className="mt-3 text-zinc-400">
+            {isUrdu 
+              ? "آپ کے منتخب ہنروں کے لئے 100 سوالات تیار ہو رہے ہیں..." 
+              : "Generating 100 questions for your selected skills..."}
+          </p>
+          <div className="mt-7 h-1 w-48 mx-auto overflow-hidden rounded-full bg-zinc-900">
+            <div className="h-full w-full animate-pulse rounded-full bg-gradient-to-r from-violet-500 to-cyan-400" />
+          </div>
         </div>
       </main>
     );
@@ -487,8 +666,6 @@ export default function TestPage() {
     );
   }
 
-  const isUrdu = assessment?.language === "Urdu";
-
   // Format timer as MM:SS
   const minutes = Math.floor(timer / 60);
   const seconds = timer % 60;
@@ -547,6 +724,27 @@ export default function TestPage() {
         </div>
       </header>
 
+      {/* Selected Skills Display */}
+      {assessment && assessment.skills && assessment.skills.length > 0 && (
+        <div className="mx-auto max-w-3xl px-5 py-4">
+          <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4">
+            <p className="text-xs uppercase tracking-widest text-zinc-600 mb-3">
+              {isUrdu ? "منتخب کردہ ہنر" : "Selected Skills"}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {assessment.skills.map((skill, index) => (
+                <span
+                  key={index}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-violet-500/15 to-violet-500/5 text-violet-200 px-3 py-1.5 text-xs font-medium border border-violet-500/20"
+                >
+                  <span className="truncate max-w-[120px]">{skill}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main */}
       <section className="mx-auto max-w-3xl px-5 py-9 sm:py-14">
         {/* Progress */}
@@ -557,7 +755,7 @@ export default function TestPage() {
         {/* Question */}
         <QuestionCard
           question={question}
-          answer={answers[question.id] || ""}
+          answer={answers[question.id] ?? ""}
           onAnswer={handleAnswer}
           showResult={false}
         />

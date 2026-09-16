@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import allITSkills from "@/data/all-skills";
-import { getSkillIcon } from "@/lib/skill-icons";
 
 const difficulties = [
   { id: "Beginner", title: "Beginner", description: "Fundamentals & basic concepts", icon: "◌" },
@@ -43,24 +42,18 @@ export default function EvaluatePage() {
   const [difficulty, setDifficulty] = useState("Intermediate");
   const [selectedSkills, setSelectedSkills] = useState([]);
   const [error, setError] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [showSearchResults, setShowSearchResults] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   const isUrdu = language === "Urdu";
-
-  const categories = useMemo(() => ["All", ...skillCategories.map(c => c.key)], []);
 
   const filteredSkills = useMemo(() => {
     let skills = allITSkills;
     if (selectedCategory !== "All") {
       skills = skills.filter(s => s.category === selectedCategory);
     }
-    if (searchQuery) {
-      skills = skills.filter(s => s.name.toLowerCase().includes(searchQuery.toLowerCase()));
-    }
     return skills.filter(s => !selectedSkills.includes(s.name));
-  }, [selectedCategory, searchQuery, selectedSkills]);
+  }, [selectedCategory, selectedSkills]);
 
   function toggleSkill(skillName) {
     setSelectedSkills(prev => {
@@ -70,24 +63,18 @@ export default function EvaluatePage() {
       if (prev.length >= 5) return prev;
       return [...prev, skillName];
     });
-    setSearchQuery("");
-    setShowSearchResults(false);
     setError("");
-  }
-
-  function handleSearchFocus() {
-    setShowSearchResults(true);
-  }
-
-  function handleSearchChange(e) {
-    setSearchQuery(e.target.value);
-    setSelectedCategory("All");
-    setShowSearchResults(true);
   }
 
   function handleCategoryClick(cat) {
     setSelectedCategory(cat);
-    setShowSearchResults(true);
+    setShowDropdown(true);
+  }
+
+  function handleSkillSelect(skillName) {
+    toggleSkill(skillName);
+    // Don't close dropdown - let user close manually
+    setSelectedCategory("All");
   }
 
   function startAssessment() {
@@ -257,7 +244,7 @@ export default function EvaluatePage() {
               text={isUrdu ? "جائزے کے لئے 5 ہنروں تک منتخب کریں۔" : "Select up to 5 skills for evaluation."}
             />
 
-            {/* Category Pills */}
+{/* Category Pills */}
             <div className="mt-4 flex flex-wrap gap-2">
               {skillCategories.map(cat => (
                 <button
@@ -275,53 +262,20 @@ export default function EvaluatePage() {
               ))}
             </div>
 
-            {/* Search Input */}
-            <div className="mt-4 relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </span>
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={handleSearchChange}
-                onFocus={handleSearchFocus}
-                onBlur={() => setTimeout(() => setShowSearchResults(false), 200)}
-                placeholder={isUrdu ? "ہنر تلاش کریں — React، Python، AWS..." : "Search skills — React, Python, AWS..."}
-                className="form-input pl-12 pr-12"
-                style={{ paddingLeft: '44px', paddingRight: '44px' }}
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => { setSearchQuery(""); setSelectedCategory("All"); setShowSearchResults(false); }}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white"
-                  aria-label={isUrdu ? "کلئیر کریں" : "Clear"}
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              )}
-            </div>
-
-            {/* Selected Skills */}
-            <div className="mt-6 min-h-[48px]">
+            {/* Selected Skills - shown at top */}
+            <div className="mt-4 min-h-[48px]">
               {selectedSkills.length === 0 ? (
                 <p className="text-sm text-zinc-600 text-center py-4">
-                  {isUrdu ? "کوئی ہنر منتخب نہیں کیا گیا — اوپر کی کیٹیگری سے منتخب کریں یا تلاش کریں" : "No skills selected — pick from categories above or search"}
+                  {isUrdu ? "کوئی ہنر منتخب نہیں کیا گیا — اوپر کی کیٹیگری سے منتخب کریں" : "No skills selected — pick from categories above"}
                 </p>
               ) : (
                 <div className="flex flex-wrap gap-2">
                   {selectedSkills.map(skill => {
-                    const skillObj = allITSkills.find(s => s.name === skill);
-                    const icon = skillObj ? getSkillIcon(skillObj.category) : null;
                     return (
                       <span
                         key={skill}
                         className="group inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-violet-500/15 to-violet-500/5 text-violet-200 px-3 py-1.5 text-xs font-medium border border-violet-500/20 hover:from-violet-500/25 hover:to-violet-500/10 transition-all duration-200"
                       >
-                        {icon}
                         <span className="truncate max-w-[120px]">{skill}</span>
                         <button
                           onClick={() => toggleSkill(skill)}
@@ -335,7 +289,7 @@ export default function EvaluatePage() {
                   })}
                   {selectedSkills.length < 5 && (
                     <button
-                      onClick={() => { setShowSearchResults(true); handleSearchFocus(); }}
+                      onClick={() => setSelectedCategory("All")}
                       className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.1] bg-white/[0.02] text-zinc-500 px-3 py-1.5 text-xs font-medium hover:border-violet-400/30 hover:text-violet-300 hover:bg-violet-500/5 transition-all"
                     >
                       <span>+</span>
@@ -346,32 +300,44 @@ export default function EvaluatePage() {
               )}
             </div>
 
-            {/* Search Results Dropdown */}
-            {(searchQuery || (showSearchResults && selectedCategory !== "All")) && filteredSkills.length > 0 && (
+            {/* Skills Dropdown - only opens when category clicked */}
+            {showDropdown && (
               <div className="mt-3 max-h-60 overflow-y-auto border border-white/[0.06] rounded-xl bg-black/20 p-2 animate-in fade-in-0 zoom-in-95 duration-150">
-                {filteredSkills.slice(0, 20).map(skill => (
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-zinc-400">{isUrdu ? "منتخب کریں" : "Select skills"}</span>
                   <button
-                    key={skill.name}
-                    type="button"
-                    onClick={() => toggleSkill(skill.name)}
-                    className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors text-zinc-400 hover:bg-white/[0.03] hover:text-white"
+                    onClick={() => setShowDropdown(false)}
+                    className="text-zinc-500 hover:text-white text-sm"
+                    aria-label={isUrdu ? "بند کریں" : "Close"}
                   >
-                    {getSkillIcon(skill.category)}
-                    <span className="flex-1 truncate text-sm font-medium">{skill.name}</span>
-                    <span className="text-[10px] opacity-50 whitespace-nowrap">{skill.category}</span>
-                    <span className="flex-shrink-0 w-5 h-5 rounded-full border border-white/[0.1] flex items-center justify-center text-[10px] text-zinc-500">+</span>
+                    ×
                   </button>
-                ))}
-                {filteredSkills.length > 20 && (
-                  <div className="mt-2 pt-2 border-t border-white/[0.05] text-center text-[11px] text-zinc-600">
-                    {isUrdu ? `اور ${filteredSkills.length - 20} نتائج...` : `+ ${filteredSkills.length - 20} more results...`}
-                  </div>
+                </div>
+                {filteredSkills.length === 0 ? (
+                  <p className="text-sm text-zinc-600 text-center py-4">
+                    {isUrdu ? "اس زمرے میں کوئی ہنر نہیں" : "No skills in this category"}
+                  </p>
+                ) : (
+                  filteredSkills.map(skill => (
+                    <button
+                      key={skill.name}
+                      type="button"
+                      onClick={() => handleSkillSelect(skill.name)}
+                      disabled={selectedSkills.length >= 5 && !selectedSkills.includes(skill.name)}
+                      className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
+                        selectedSkills.includes(skill.name)
+                          ? "bg-violet-500/15 text-violet-200 border border-violet-500/30"
+                          : "text-zinc-400 hover:bg-white/[0.03] hover:text-white"
+                      } ${selectedSkills.length >= 5 && !selectedSkills.includes(skill.name) ? "opacity-40 cursor-not-allowed" : ""}`}
+                    >
+                      <span className="flex-1 truncate text-sm font-medium">{skill.name}</span>
+                      <span className="text-[10px] opacity-50 whitespace-nowrap">{skill.category}</span>
+                      <span className="flex-shrink-0 w-5 h-5 rounded-full border border-white/[0.1] flex items-center justify-center text-[10px] text-zinc-500">
+                        {selectedSkills.includes(skill.name) ? "✓" : "+"}
+                      </span>
+                    </button>
+                  ))
                 )}
-              </div>
-            )}
-            {(searchQuery || (showSearchResults && selectedCategory !== "All")) && filteredSkills.length === 0 && (
-              <div className="mt-3 py-6 text-center text-zinc-600 text-sm">
-                {isUrdu ? "کوئی ہنر نہیں ملا" : "No skills found"}
               </div>
             )}
           </div>

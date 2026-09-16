@@ -1,9 +1,7 @@
 "use client";
 
-export const dynamic = 'force-dynamic';
-
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 
 export default function AdminCertificates() {
@@ -12,27 +10,34 @@ export default function AdminCertificates() {
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [search, setSearch] = useState("");
   const [levelFilter, setLevelFilter] = useState("");
   const [loadingMore, setLoadingMore] = useState(false);
 
-  const fetchCertificates = async (pageNum = 1, append = false) => {
-    setLoading(pageNum === 1);
-    setLoadingMore(pageNum > 1);
+  // ✅ Controlled search input (fixes blink + focus loss)
+  const [searchInput, setSearchInput] = useState("");
+  const searchTimeoutRef = useRef(null);
+  const isFirstLoad = useRef(true);
+  const abortRef = useRef(null);
+
+  const fetchCertificates = async (pageNum, append, searchTerm, level) => {
+    // cancel previous request
+    if (abortRef.current) abortRef.current.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    if (pageNum > 1) setLoadingMore(true);
 
     try {
       const params = new URLSearchParams({
         page: pageNum.toString(),
         limit: "20",
       });
-      if (search) {
-        params.append("search", search);
-      }
-      if (levelFilter) {
-        params.append("level", levelFilter);
-      }
+      if (searchTerm) params.append("search", searchTerm);
+      if (level) params.append("level", level);
 
-      const res = await fetch(`/api/admin/certificates?${params}`);
+      const res = await fetch(`/api/admin/certificates?${params}`, {
+        signal: controller.signal,
+      });
       if (res.ok) {
         const data = await res.json();
         if (append) {
@@ -43,36 +48,52 @@ export default function AdminCertificates() {
         setTotal(data.total);
       }
     } catch (error) {
-      console.error("Failed to fetch certificates:", error);
+      if (error.name !== "AbortError") {
+        console.error("Failed to fetch certificates:", error);
+      }
     } finally {
       setLoading(false);
       setLoadingMore(false);
     }
   };
 
+  // ✅ Initial load — only once
   useEffect(() => {
-    fetchCertificates(1);
+    if (isFirstLoad.current) {
+      isFirstLoad.current = false;
+      fetchCertificates(1, false, "", "");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const loadMore = () => {
-    if (!loadingMore) {
-      fetchCertificates(page + 1, true);
-    }
-  };
-
+  // ✅ Search — debounced, no re-render per keystroke
   const handleSearch = (e) => {
-    setSearch(e.target.value);
-    setPage(1);
-    fetchCertificates(1);
+    const value = e.target.value;
+    setSearchInput(value);
+
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    searchTimeoutRef.current = setTimeout(() => {
+      setPage(1);
+      fetchCertificates(1, false, value, levelFilter);
+    }, 400);
   };
 
+  // ✅ Level filter — single fetch, no double trigger
   const handleLevelFilter = (e) => {
-    setLevelFilter(e.target.value);
+    const value = e.target.value;
+    setLevelFilter(value);
     setPage(1);
-    fetchCertificates(1);
+    fetchCertificates(1, false, searchInput, value);
   };
 
-  if (loading) {
+  const loadMore = () => {
+    if (loadingMore) return;
+    const next = page + 1;
+    setPage(next);
+    fetchCertificates(next, true, searchInput, levelFilter);
+  };
+
+  if (loading && certificates.length === 0) {
     return (
       <main className="min-h-screen bg-[#05050a] flex items-center justify-center">
         <div className="animate-pulse w-96 h-96 bg-[#0a0a10] rounded-2xl" />
@@ -95,15 +116,22 @@ export default function AdminCertificates() {
           <p className="text-zinc-500 mt-1">View and manage all issued certificates</p>
         </div>
 
+        {/* ✅ Filters — static block, input never re-mounts */}
         <div className="mb-5 flex flex-wrap gap-3">
           <input
             type="text"
-            value={search}
+            value={searchInput}
             onChange={handleSearch}
             placeholder="Search certificates..."
-            className="form-input flex-1 min-w-[200px]"
+            autoComplete="off"
+            spellCheck={false}
+            className="flex-1 min-w-[200px] pl-4 pr-4 py-3 rounded-xl border border-white/[0.06] bg-white/[0.02] text-white placeholder:text-zinc-600 focus:border-violet-400/50 focus:ring-2 focus:ring-violet-500/20 focus:outline-none transition-colors"
           />
-          <select value={levelFilter} onChange={handleLevelFilter} className="form-input w-auto">
+          <select
+            value={levelFilter}
+            onChange={handleLevelFilter}
+            className="w-auto rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3 text-sm font-medium text-zinc-300 focus:border-violet-400/50 focus:ring-2 focus:ring-violet-500/20 focus:outline-none transition-colors"
+          >
             <option value="">All Levels</option>
             <option value="Beginner">Beginner</option>
             <option value="Intermediate">Intermediate</option>
@@ -111,7 +139,7 @@ export default function AdminCertificates() {
           </select>
         </div>
 
-        {certificates.length === 0 ? (
+        {certificates.length === 0 && !loading ? (
           <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-10 text-center text-zinc-500">
             No certificates found
           </div>

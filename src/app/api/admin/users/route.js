@@ -24,7 +24,7 @@ export async function GET(request) {
     }
 
     const users = await User.find(query)
-      .select("name email role provider testsCompleted lastLoginAt createdAt")
+      .select("name email role provider testsCompleted lastLoginAt createdAt _id")
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit);

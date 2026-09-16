@@ -219,23 +219,21 @@ select.form-input {
   color: #ddd6fe;
 }
 
-/* Homepage skill pills */
+/* Homepage skill pills - Base styles (colors applied via inline styles per skill) */
 
 .skill-pill {
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid;
+  background: rgba(255, 255, 255, 0.04);
   border-radius: 14px;
   padding: 12px 17px;
   font-size: 13px;
-  color: #71717a;
+  font-weight: 500;
   transition: all 0.25s ease;
 }
 
 .skill-pill:hover {
-  transform: translateY(-3px);
-  border-color: rgba(139, 92, 246, 0.3);
-  color: #ddd6fe;
-  background: rgba(139, 92, 246, 0.06);
+  transform: translateY(-3px) scale(1.02);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 /* Animations */

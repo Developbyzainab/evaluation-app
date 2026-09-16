@@ -13,23 +13,35 @@ export function formatCertificateDate(dateString) {
   });
 }
 
-export function createCertificate(assessment, result) {
+export function createCertificate(assessment, result, user) {
+  const certificateId = generateCertificateId();
+  const verificationUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/certificate/${certificateId}`;
+  
   return {
-    id: generateCertificateId(),
+    id: certificateId,
+    certificateId,
     name: assessment.name,
     email: assessment.email || "",
+    userId: user?.id || null,
+    userName: assessment.name,
+    userEmail: assessment.email || "",
+    skill: assessment.skills?.[0] || "General",
     skills: assessment.skills,
     score: result.score,
     total: result.total,
+    totalQuestions: result.total,
     percentage: result.percentage,
     level: result.level,
     date: new Date().toISOString(),
+    issuedAt: new Date().toISOString(),
     completedAt: result.completedAt,
     strengths: result.strengths || [],
     weaknesses: result.weaknesses || [],
     skillStats: result.skillStats || {},
     language: assessment.language || "English",
     duration: result.duration || "—",
+    verificationUrl: `${typeof window !== "undefined" ? window.location.origin : ""}/certificate/${certificateId}`,
+    pdfUrl: null,
   };
 }
 
@@ -53,4 +65,19 @@ export function saveCertificate(certificate) {
 export function getCertificateById(id) {
   const certificates = getAllCertificates();
   return certificates.find((c) => c.id === id) || null;
+}
+
+// Save certificate to MongoDB via API
+export async function saveCertificateToMongo(certificate) {
+  try {
+    const res = await fetch("/api/certificates", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(certificate),
+    });
+    return res.ok;
+  } catch (error) {
+    console.error("Failed to save certificate to MongoDB:", error);
+    return false;
+  }
 }

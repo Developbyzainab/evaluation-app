@@ -4,6 +4,20 @@ import TestAttempt from "@/models/TestAttempt";
 import Certificate from "@/models/Certificate";
 import User from "@/models/User";
 
+function parseDuration(durationStr) {
+  if (typeof durationStr === "number") return durationStr;
+  if (typeof durationStr !== "string") return 0;
+  
+  const match = durationStr.match(/(\d+)\s*min/i);
+  if (match) return parseInt(match[1], 10);
+  
+  const secMatch = durationStr.match(/(\d+)\s*sec/i);
+  if (secMatch) return Math.ceil(parseInt(secMatch[1], 10) / 60);
+  
+  const num = parseInt(durationStr, 10);
+  return isNaN(num) ? 0 : num;
+}
+
 export async function POST(request) {
   try {
     await connectDB();
@@ -22,6 +36,7 @@ export async function POST(request) {
     const testAttempt = await TestAttempt.create({
       userId,
       ...attemptData,
+      duration: parseDuration(attemptData.duration),
     });
 
     // Update user's test count
