@@ -134,7 +134,7 @@ export default function Certificate({ certificate, showPrintButton = true }) {
               <div className="cert-signature-line" />
               <p className="cert-signature-label">DIRECTOR</p>
               <p className="cert-signature-name font-playfair">Sarah Mitchell</p>
-              <p className="cert-signature-title">SkillEval AI</p>
+              <p className="cert-signature-title">Let's do I.T</p>
             </div>
 
             <div className="cert-id-block">
@@ -149,7 +149,7 @@ export default function Certificate({ certificate, showPrintButton = true }) {
               <div className="cert-signature-line" />
               <p className="cert-signature-label">MANAGER</p>
               <p className="cert-signature-name font-playfair">James Wilson</p>
-              <p className="cert-signature-title">SkillEval AI</p>
+              <p className="cert-signature-title">Let's do I.T</p>
             </div>
           </div>
         </div>

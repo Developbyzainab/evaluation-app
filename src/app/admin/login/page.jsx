@@ -44,7 +44,7 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link href="/admin" className="inline-flex items-center gap-3 mb-6">
-            <img src="/white.png" alt="SkillEval Admin" className="h-12 w-auto" />
+            <img src="/white.png" alt="Let's do I.T Admin" className="h-9 w-auto" />
           </Link>
           <h1 className="text-3xl font-bold text-white mb-2">Admin Login</h1>
           <p className="text-zinc-400">Enter your admin credentials</p>

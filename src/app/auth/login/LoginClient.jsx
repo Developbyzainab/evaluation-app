@@ -111,7 +111,7 @@ function LoginForm({ user }) {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-3 mb-6">
-            <img src="/white.png" alt="SkillEval" className="h-12 w-auto" />
+            <img src="/white.png" alt="Let's do I.T" className="h-9 w-auto" />
           </Link>
           <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
           <p className="text-zinc-400">Sign in to your SkillEval account</p>

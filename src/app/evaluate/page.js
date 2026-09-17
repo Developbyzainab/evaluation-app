@@ -136,7 +136,7 @@ export default function EvaluatePage() {
       <nav className="border-b border-white/[0.06]">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-5 py-5">
           <Link href="/" className="flex items-center">
-            <img src="/white.png" alt="Skill Evaluator" className="h-10 w-auto object-contain" />
+            <img src="/white.png" alt="Let's do I.T" className="h-8 w-auto object-contain" />
           </Link>
           <Link href="/dashboard" className="text-xs text-zinc-500 transition hover:text-white">
             {isUrdu ? "ڈیش بورڈ →" : "Dashboard →"}

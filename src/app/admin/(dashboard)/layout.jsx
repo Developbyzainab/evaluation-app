@@ -75,7 +75,7 @@ export default function AdminLayout({ children }) {
           {/* Logo */}
           <div className="flex h-16 items-center px-5 border-b border-white/[0.04]">
             <Link href="/admin" className="flex items-center">
-              <img src="/white.png" alt="SkillEval" className="h-10 w-auto" />
+              <img src="/white.png" alt="Let's do I.T" className="h-8 w-auto" />
             </Link>
           </div>
 

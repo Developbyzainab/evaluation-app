@@ -14,7 +14,7 @@ export default function Navbar() {
     <nav className="fixed top-0 z-50 w-full border-b border-neutral-200 bg-white/80 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
         <Link href="/" className="flex items-center">
-          <img src="/white.png" alt="SkillEval" className="h-10 w-auto" />
+          <img src="/white.png" alt="Let's do I.T" className="h-8 w-auto" />
         </Link>
 
         <div className="flex items-center gap-3">

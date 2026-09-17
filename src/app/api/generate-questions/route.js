@@ -6,7 +6,7 @@ export async function POST(request) {
   
   try {
     const body = await request.json();
-    const { skills, difficulty, count, language = "English" } = body;
+    const { skills, difficulty, count, language = "English", experience } = body;
 
     // Validate required fields
     if (!skills || !Array.isArray(skills) || skills.length === 0) {
@@ -30,8 +30,12 @@ export async function POST(request) {
       );
     }
 
+    let difficultyValue = (difficulty || "easy").toLowerCase();
+    if (difficultyValue === "beginner") difficultyValue = "easy";
+    else if (difficultyValue === "intermediate") difficultyValue = "medium";
+    else if (difficultyValue === "advanced") difficultyValue = "hard";
+    
     const validDifficulties = ["easy", "medium", "hard"];
-    const difficultyValue = (difficulty || "easy").toLowerCase();
     if (!validDifficulties.includes(difficultyValue)) {
       return NextResponse.json(
         { error: "Invalid difficulty. Must be one of: easy, medium, hard" },
@@ -73,6 +77,7 @@ export async function POST(request) {
     const diffLevel = difficultyMap[difficultyValue] || "beginner";
 
     const prompt = `Generate ${questionCount} unique multiple-choice questions for a ${diffLevel} level assessment covering these skills: ${skills.join(", ")}.
+Experience level of the candidate: ${experience || "Not specified"}.
     
 Requirements:
 - Each question must be specific to one of the skills listed: ${skills.join(", ")}

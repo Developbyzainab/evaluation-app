@@ -15,8 +15,8 @@ function shuffle(array) {
   return [...array].sort(() => Math.random() - 0.5);
 }
 
-async function fetchQuestions(skills, difficulty, count, language) {
-  console.log("Fetching questions for skills:", skills, "difficulty:", difficulty, "count:", count, "language:", language);
+async function fetchQuestions(skills, difficulty, count, language, experience) {
+  console.log("Fetching questions for skills:", skills, "difficulty:", difficulty, "count:", count, "language:", language, "experience:", experience);
   
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 120000); // 120 second timeout
@@ -25,7 +25,7 @@ async function fetchQuestions(skills, difficulty, count, language) {
     const response = await fetch("/api/generate-questions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ skills, difficulty, count, language }),
+      body: JSON.stringify({ skills, difficulty, count, language, experience }),
       signal: controller.signal
     });
     
@@ -244,7 +244,8 @@ useEffect(() => {
           data.skills || [],
           data.difficulty || "easy",
           TOTAL_QUESTIONS,
-          data.language || "English"
+          data.language || "English",
+          data.experience || ""
         );
 
         if (!generatedQuestions || generatedQuestions.length === 0) {
@@ -373,10 +374,10 @@ useEffect(() => {
 
       skillStats[item.skill].total += 1;
 
-      const userAnswer = answers[item.id]?.trim().toLowerCase();
-      const correctAnswer = item.answer?.trim().toLowerCase();
+      const userAnswerIndex = answers[item.id];
+      const correctAnswerIndex = item.correct;
 
-      if (userAnswer && correctAnswer && userAnswer === correctAnswer) {
+      if (userAnswerIndex !== undefined && correctAnswerIndex !== undefined && userAnswerIndex === correctAnswerIndex) {
         score += 1;
         skillStats[item.skill].correct += 1;
       }
@@ -693,7 +694,7 @@ useEffect(() => {
       <header className="border-b border-white/[0.06] bg-[#05050a]/70 backdrop-blur-xl">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-5">
           <div className="flex items-center gap-3">
-            <img src="/white.png" alt="Skill Evaluator" className="h-10 w-auto object-contain" />
+            <img src="/white.png" alt="Let's do I.T" className="h-8 w-auto object-contain" />
             <span className="text-xs font-semibold text-violet-400 tracking-wide">SECURE MODE</span>
           </div>
 

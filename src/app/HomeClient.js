@@ -55,8 +55,8 @@ export default function HomeClient({ user }) {
         >
           <img
             src="/white.png"
-            alt="Skill Evaluator"
-            className="h-11 w-auto object-contain transition duration-300 group-hover:scale-105"
+            alt="Let's do I.T"
+            className="h-8 w-auto object-contain transition duration-300 group-hover:scale-105"
           />
         </Link>
 
@@ -304,7 +304,7 @@ export default function HomeClient({ user }) {
         className="mx-auto max-w-7xl px-5 py-24 lg:px-8"
       >
         <SectionHeading
-          eyebrow="Why SkillEval"
+          eyebrow="Why Let's do I.T"
           title="More than just a quiz."
           text="A complete evaluation experience designed to understand how well you actually know your skills."
         />
@@ -436,7 +436,7 @@ export default function HomeClient({ user }) {
       <footer className="border-t border-white/[0.05]">
         <div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 px-5 py-8 text-xs text-zinc-700 sm:flex-row lg:px-8">
           <p>
-            © 2026 SkillEval AI. Built for better skill discovery.
+            © 2026 Let's do I.T. Built for better skill discovery.
           </p>
 
           <p>

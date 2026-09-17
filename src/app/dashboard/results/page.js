@@ -40,7 +40,7 @@ export default function Results() {
 
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-5 py-6 lg:px-8">
         <Link href="/" className="group flex items-center">
-          <img src="/white.png" alt="SkillEval" className="h-11 w-auto object-contain transition duration-300 group-hover:scale-105" />
+          <img src="/white.png" alt="Let's do I.T" className="h-8 w-auto object-contain transition duration-300 group-hover:scale-105" />
         </Link>
 
         <div className="hidden items-center gap-8 md:flex">
